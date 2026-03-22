@@ -25,8 +25,9 @@
     button:hover { transform: translateY(-2px); box-shadow: 0 20px 45px rgba(244,114,182,0.6); }
     button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
     .success { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); margin-top: 20px; display: none; backdrop-filter: blur(10px); }
-    .loading { display: none; }
-    .error { background: rgba(255,0,0,0.2); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,0,0,0.3); margin-top: 20px; display: none; }
+    .loading, .error { display: none; padding: 20px; border-radius: 16px; margin-top: 20px; }
+    .loading { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+    .error { background: rgba(255,0,0,0.2); border: 1px solid rgba(255,0,0,0.3); }
   </style>
 </head>
 <body>
@@ -40,17 +41,14 @@
     </form>
     
     <div id="loading" class="loading">Salvando no banco... ✨</div>
-    <div id="success-message" class="success">
-      ✅ Você tá na lista! Receberá email quando lançarmos! 💕
-    </div>
-    <div id="error-message" class="error">
-      ❌ Email já está na lista ou erro. Tenta outro!
-    </div>
+    <div id="success-message" class="success">✅ Você tá na lista! Receberá email quando lançarmos! 💕</div>
+    <div id="error-message" class="error">❌ Email já existe ou erro. Tenta outro!</div>
   </div>
 
-  <!-- SUPABASE COM TEUS DADOS -->
+  <!-- SUPABASE - TEUS DADOS EXATOS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // TEUS DADOS SUPABASE
     const SUPABASE_URL = "https://atuiqulmmeipmzpqyxle.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0dWlxdWxtbWVpcG16cHF5eGxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDA5MjgsImV4cCI6MjA4OTc3NjkyOH0.xffhAd00OTG5QwdAYDIDb4h70gK1KVgeZ3F1e8Mq7bc";
     
@@ -61,16 +59,16 @@
       
       const email = document.getElementById('user_email').value;
       const btn = e.target.querySelector('button');
-      const loading = document.getElementById('loading');
-      const success = document.getElementById('success-message');
-      const errorMsg = document.getElementById('error-message');
+      const loadingEl = document.getElementById('loading');
+      const successEl = document.getElementById('success-message');
+      const errorEl = document.getElementById('error-message');
       
       // Loading
       btn.disabled = true;
       btn.innerHTML = 'Salvando...';
-      loading.style.display = 'block';
-      success.style.display = 'none';
-      errorMsg.style.display = 'none';
+      loadingEl.style.display = 'block';
+      successEl.style.display = 'none';
+      errorEl.style.display = 'none';
       
       try {
         const { data, error } = await supabase
@@ -79,14 +77,14 @@
         
         if (error) throw error;
         
-        console.log('✅ SALVOU!', data);
-        loading.style.display = 'none';
-        success.style.display = 'block';
+        console.log('✅ SALVOU NO SUPABASE!', data);
+        loadingEl.style.display = 'none';
+        successEl.style.display = 'block';
         
       } catch (error) {
-        console.error('❌ ERRO:', error);
-        loading.style.display = 'none';
-        errorMsg.style.display = 'block';
+        console.error('❌ ERRO SUPABASE:', error);
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
         btn.disabled = false;
         btn.innerHTML = '✨ Entrar na lista';
       }
