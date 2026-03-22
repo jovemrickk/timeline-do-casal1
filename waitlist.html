@@ -46,45 +46,55 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     console.log('🔥 DEBUG START');
-    
-    // TEUS DADOS
+
     const SUPABASE_URL = "https://atuiqulmmeipmzpqyxle.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0dWlxdWxtbWVpcG16cHF5eGxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDA5MjgsImV4cCI6MjA4OTc3NjkyOH0.xffhAd00OTG5QwdAYDIDb4h70gK1KVgeZ3F1e8Mq7bc";
-    
+
     const statusEl = document.getElementById('status');
     const successEl = document.getElementById('success');
     const errorEl = document.getElementById('error');
-    
-    // TESTA SUPABASE
+
     statusEl.innerHTML += '<br>2. Carregando Supabase...';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('Supabase loaded:', supabase);
+
+    // ✅ FIX: usar supabasejs.createClient em vez de redeclarar supabase
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    console.log('Supabase loaded:', db);
     statusEl.innerHTML += '<br>✅ Supabase OK!';
-    
+
     document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      
+
       const email = document.getElementById('user_email').value;
       statusEl.innerHTML += `<br>3. Email: ${email}`;
       console.log('Email:', email);
-      
+
+      const btn = e.target.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
       try {
         statusEl.innerHTML += '<br>4. Tentando salvar...';
-        const { data, error } = await supabase
+
+        const { data, error } = await db
           .from('waitlist')
           .insert([{ email: email }]);
-        
+
         if (error) throw error;
-        
+
         console.log('✅ SALVOU!', data);
         statusEl.innerHTML += '<br>✅ SALVOU NO SUPABASE!';
         successEl.style.display = 'block';
-        
-      } catch (error) {
-        console.error('❌ ERRO:', error);
-        statusEl.innerHTML += `<br>❌ ERRO: ${error.message}`;
-        errorEl.innerHTML = `ERRO: ${error.message}`;
+        errorEl.style.display = 'none';
+
+      } catch (err) {
+        console.error('❌ ERRO:', err);
+        statusEl.innerHTML += `<br>❌ ERRO: ${err.message}`;
+        errorEl.innerHTML = `ERRO: ${err.message}`;
         errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'TESTAR';
       }
     });
   </script>
