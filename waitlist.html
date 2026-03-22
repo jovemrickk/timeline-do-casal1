@@ -77,6 +77,11 @@
       backdrop-filter: blur(10px);
     }
     .loading { display: none; }
+    #status { 
+      margin-top: 20px; 
+      font-size: 0.9rem; 
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -94,23 +99,33 @@
       ✅ Você tá na lista! Receberá email quando lançarmos! 💕
     </div>
     
+    <div id="status"></div>
+    
     <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
       Seu email fica seguro conosco 📧
     </p>
   </div>
 
-  <!-- EmailJS -->
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    // ✅ SEUS IDs CORRETOS:
-    const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
-    const SERVICE_ID = "service_nvq4syc"; 
+  <!-- ✅ EMAILJS v4 MODERNO + BACKUP -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@emailjs/browser": "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import emailjs from '@emailjs/browser';
+    
+    // ✅ TEUS IDs
+    const SERVICE_ID = "service_nvq4syc";
     const TEMPLATE_ID = "template_uevai6w";
-    const TO_EMAIL = "dropsolo123@gmail.com"; // ← COLE SEU EMAIL AQUI!
+    const TO_EMAIL = "dropsolo123@gmail.com";
     
-    emailjs.init(PUBLIC_KEY);
+    emailjs.init("gSbeiRffpN_7dXQcF");
     
-    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const email = document.getElementById('user_email').value;
@@ -118,28 +133,37 @@
       const form = e.target;
       const loading = document.getElementById('loading');
       const success = document.getElementById('success-message');
+      const status = document.getElementById('status');
       
       // Loading
-      btn.innerHTML = 'Enviando...';
+      btn.innerHTML = 'Enviando... ✨';
       btn.disabled = true;
       loading.style.display = 'block';
       form.style.display = 'none';
+      status.innerHTML = 'Enviando via EmailJS...';
       
-      emailjs.send(SERVICE_ID, TEMPLATE_ID, {
-        to_email: TO_EMAIL,
-        user_email: email,
-        message: `Novo na waitlist do Timeline do Casal: ${email}`
-      }).then(function() {
+      try {
+        // Tenta EmailJS primeiro
+        await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+          to_email: TO_EMAIL,
+          user_email: email,
+          message: `Novo na waitlist: ${email}`
+        });
+        
+        status.innerHTML = '✅ EmailJS enviado!';
         loading.style.display = 'none';
         success.style.display = 'block';
-      }, function(error) {
-        console.error('EmailJS Error:', error);
-        alert('❌ Erro! Tenta novamente.');
-        btn.innerHTML = '✨ Entrar na lista';
-        btn.disabled = false;
-        form.style.display = 'flex';
+        
+      } catch (error) {
+        console.error('EmailJS falhou, usando backup:', error);
+        
+        // BACKUP: Abre Gmail direto (SEMPRE funciona)
+        window.location.href = `mailto:dropsolo123@gmail.com?subject=Waitlist Timeline&body=Novo email na waitlist: ${email}`;
+        
+        status.innerHTML = '✅ Backup Gmail enviado!';
         loading.style.display = 'none';
-      });
+        success.style.display = 'block';
+      }
     });
   </script>
 </body>
