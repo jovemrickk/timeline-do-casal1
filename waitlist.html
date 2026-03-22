@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waitlist - Timeline do Casal</title>
+  <title>Waitlist DEBUG - Timeline do Casal</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
@@ -11,81 +11,80 @@
       background: linear-gradient(135deg, #741a36 0%, #1e0f2a 50%, #b83280 100%);
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       color: white;
-      overflow-x: hidden;
       padding: 20px;
     }
-    .container { max-width: 500px; margin: 0 auto; padding-top: 100px; text-align: center; }
-    h1 { font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 20px; background: linear-gradient(45deg, #f472b6, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 40px; line-height: 1.6; }
-    form { display: flex; flex-direction: column; gap: 15px; }
-    input { padding: 18px 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; backdrop-filter: blur(10px); width: 100%; }
+    .container { max-width: 500px; margin: 0 auto; padding-top: 50px; text-align: center; }
+    h1 { font-size: 2rem; margin-bottom: 20px; color: #f472b6; }
+    form { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto 30px; }
+    input { padding: 18px; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; }
     input::placeholder { color: rgba(255,255,255,0.6); }
-    input:focus { outline: none; border-color: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
-    button { padding: 18px; background: linear-gradient(45deg, #f472b6, #a855f7); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 15px 35px rgba(244,114,182,0.4); transition: all 0.3s ease; }
-    button:hover { transform: translateY(-2px); box-shadow: 0 20px 45px rgba(244,114,182,0.6); }
-    button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-    .success { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); margin-top: 20px; display: none; backdrop-filter: blur(10px); }
-    .loading, .error { display: none; padding: 20px; border-radius: 16px; margin-top: 20px; }
-    .loading { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-    .error { background: rgba(255,0,0,0.2); border: 1px solid rgba(255,0,0,0.3); }
+    button { padding: 18px; background: linear-gradient(45deg, #f472b6, #a855f7); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .status { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 400px; text-align: left; font-size: 0.9rem; }
+    .success { background: rgba(0,255,0,0.2); padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 400px; display: none; }
+    .error { background: rgba(255,0,0,0.2); padding: 20px; border-radius: 12px; margin: 20px auto; max-width: 400px; display: none; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Junte-se à waitlist 💕</h1>
-    <p>Primeiros 100 casais: <strong>acesso grátis pro 1º ano!</strong></p>
+    <h1>🔧 DEBUG Waitlist 💕</h1>
+    <p>Teste: bota email → clica → vê status</p>
     
     <form id="waitlist-form">
-      <input type="email" id="user_email" placeholder="seu@email.com" required>
-      <button type="submit">✨ Entrar na lista</button>
+      <input type="email" id="user_email" placeholder="test@email.com" required>
+      <button type="submit">TESTAR</button>
     </form>
     
-    <div id="loading" class="loading">Salvando no banco... ✨</div>
-    <div id="success-message" class="success">✅ Você tá na lista! Receberá email quando lançarmos! 💕</div>
-    <div id="error-message" class="error">❌ Email já existe ou erro. Tenta outro!</div>
+    <div id="status" class="status">
+      <strong>Status:</strong><br>
+      1. Aguardando clique...
+    </div>
+    <div id="success" class="success">✅ FUNCIONOU! Veja Supabase!</div>
+    <div id="error" class="error"></div>
   </div>
 
-  <!-- SUPABASE - SEM RLS - TEUS DADOS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    console.log('🔥 DEBUG START');
+    
+    // TEUS DADOS
     const SUPABASE_URL = "https://atuiqulmmeipmzpqyxle.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0dWlxdWxtbWVpcG16cHF5eGxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDA5MjgsImV4cCI6MjA4OTc3NjkyOH0.xffhAd00OTG5QwdAYDIDb4h70gK1KVgeZ3F1e8Mq7bc";
     
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const statusEl = document.getElementById('status');
+    const successEl = document.getElementById('success');
+    const errorEl = document.getElementById('error');
+    
+    // TESTA SUPABASE
+    statusEl.innerHTML += '<br>2. Carregando Supabase...';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase loaded:', supabase);
+    statusEl.innerHTML += '<br>✅ Supabase OK!';
     
     document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const email = document.getElementById('user_email').value;
-      const btn = e.target.querySelector('button');
-      const loadingEl = document.getElementById('loading');
-      const successEl = document.getElementById('success-message');
-      const errorEl = document.getElementById('error-message');
-      
-      // Loading
-      btn.disabled = true;
-      btn.innerHTML = 'Salvando...';
-      loadingEl.style.display = 'block';
-      successEl.style.display = 'none';
-      errorEl.style.display = 'none';
+      statusEl.innerHTML += `<br>3. Email: ${email}`;
+      console.log('Email:', email);
       
       try {
+        statusEl.innerHTML += '<br>4. Tentando salvar...';
         const { data, error } = await supabase
           .from('waitlist')
           .insert([{ email: email }]);
         
         if (error) throw error;
         
-        console.log('✅ SALVOU NO SUPABASE!', data);
-        loadingEl.style.display = 'none';
+        console.log('✅ SALVOU!', data);
+        statusEl.innerHTML += '<br>✅ SALVOU NO SUPABASE!';
         successEl.style.display = 'block';
         
       } catch (error) {
-        console.error('❌ ERRO SUPABASE:', error);
-        loadingEl.style.display = 'none';
+        console.error('❌ ERRO:', error);
+        statusEl.innerHTML += `<br>❌ ERRO: ${error.message}`;
+        errorEl.innerHTML = `ERRO: ${error.message}`;
         errorEl.style.display = 'block';
-        btn.disabled = false;
-        btn.innerHTML = '✨ Entrar na lista';
       }
     });
   </script>
