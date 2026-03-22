@@ -102,11 +102,11 @@
   <!-- EmailJS -->
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    // SEUS IDs JÁ CONFIGURADOS:
+    // ✅ SEUS IDs CORRETOS:
     const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
     const SERVICE_ID = "service_nvq4syc"; 
-    const TEMPLATE_ID = "template_c8yto6e";
-    const TO_EMAIL = "dropsolo123@gmail.com"; // ← COLE SEU EMAIL!
+    const TEMPLATE_ID = "template_uevai6w";
+    const TO_EMAIL = "dropsolo123@gmail.com"; // ← COLE SEU EMAIL AQUI!
     
     emailjs.init(PUBLIC_KEY);
     
@@ -128,11 +128,12 @@
       emailjs.send(SERVICE_ID, TEMPLATE_ID, {
         to_email: TO_EMAIL,
         user_email: email,
-        message: `Novo na waitlist: ${email}`
+        message: `Novo na waitlist do Timeline do Casal: ${email}`
       }).then(function() {
         loading.style.display = 'none';
         success.style.display = 'block';
       }, function(error) {
+        console.error('EmailJS Error:', error);
         alert('❌ Erro! Tenta novamente.');
         btn.innerHTML = '✨ Entrar na lista';
         btn.disabled = false;
