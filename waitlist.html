@@ -107,14 +107,14 @@
     </p>
   </div>
 
-  <!-- ✅ EmailJS ANTIGO (FUNCIONA) + BACKUP INCRÍVEL -->
+  <!-- ✅ EmailJS SEM BACKUP GMAIL (NÃO abre nada!) -->
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    // SEUS IDs
+    // SEUS IDs CORRETOS
     const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
     const SERVICE_ID = "service_nvq4syc"; 
-    const TEMPLATE_ID = "template_c8yto6e";
-    const TO_EMAIL = "rickdrop31@gmail.com";
+    const TEMPLATE_ID = "template_uevai6w";
+    const TO_EMAIL = "dropsolo123@gmail.com";
     
     emailjs.init(PUBLIC_KEY);
     
@@ -135,25 +135,23 @@
       form.style.display = 'none';
       status.innerHTML = 'Enviando via EmailJS...';
       
-      // Tenta EmailJS
+      // EmailJS PURO (SEM backup Gmail)
       emailjs.send(SERVICE_ID, TEMPLATE_ID, {
         to_email: TO_EMAIL,
         user_email: email,
-        message: `Novo na waitlist: ${email}`
+        message: `Novo na waitlist do Timeline do Casal: ${email}`
       }).then(function(response) {
-        console.log('EmailJS OK!', response);
-        status.innerHTML = '✅ EmailJS enviado!';
+        console.log('✅ EmailJS SUCESSO!', response);
+        status.innerHTML = '✅ Email enviado pro admin!';
         loading.style.display = 'none';
         success.style.display = 'block';
       }, function(error) {
-        console.log('EmailJS falhou, usando BACKUP');
-        
-        // BACKUP 1: Gmail direto (abre app email)
-        window.location.href = `mailto:dropsolo123@gmail.com?subject=Waitlist Timeline&body=Novo email na waitlist: ${email}`;
-        
-        status.innerHTML = '✅ Backup Gmail enviado!';
+        console.error('❌ EmailJS ERRO:', error);
+        status.innerHTML = '❌ Erro técnico. Tenta novamente!';
+        btn.innerHTML = '✨ Entrar na lista';
+        btn.disabled = false;
+        form.style.display = 'flex';
         loading.style.display = 'none';
-        success.style.display = 'block';
       });
     });
   </script>
