@@ -1,46 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waitlist - Timeline do Casal</title>
-  <meta name="viewport" content="width=device-width">
-  <!-- Teu CSS rosa aqui -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      min-height: 100vh; 
+      background: linear-gradient(135deg, #741a36 0%, #1e0f2a 50%, #b83280 100%);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      color: white;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 500px; 
+      margin: 0 auto; 
+      padding-top: 100px; 
+      text-align: center;
+    }
+    h1 { 
+      font-size: clamp(2rem, 6vw, 3rem); 
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, #f472b6, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p { 
+      font-size: 1.25rem; 
+      opacity: 0.9; 
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    form { display: flex; flex-direction: column; gap: 15px; }
+    input { 
+      padding: 18px 20px; 
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      width: 100%;
+    }
+    input::placeholder { color: rgba(255,255,255,0.6); }
+    input:focus { outline: none; border-color: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
+    button { 
+      padding: 18px; 
+      background: linear-gradient(45deg, #f472b6, #a855f7);
+      color: white; 
+      border: none; 
+      border-radius: 16px;
+      font-size: 1.1rem; 
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 15px 35px rgba(244,114,182,0.4);
+      transition: all 0.3s ease;
+    }
+    button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 20px 45px rgba(244,114,182,0.6);
+    }
+    button:disabled { 
+      opacity: 0.7; 
+      cursor: not-allowed; 
+      transform: none;
+    }
+    .success { 
+      background: rgba(255,255,255,0.1); 
+      padding: 25px; 
+      border-radius: 16px; 
+      border: 1px solid rgba(255,255,255,0.2);
+      margin-top: 20px;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+    .loading { display: none; }
+  </style>
 </head>
 <body>
-  <div style="padding:80px 20px;max-width:500px;margin:0 auto;text-align:center;color:white;">
-    <h1 style="font-size:2.5rem;margin-bottom:20px">Junte-se à waitlist 💕</h1>
-    <p style="font-size:1.25rem;margin-bottom:40px">Primeiros 100 casais: acesso grátis!</p>
+  <div class="container">
+    <h1>Junte-se à waitlist 💕</h1>
+    <p>Primeiros 100 casais: <strong>acesso grátis pro 1º ano!</strong></p>
     
     <form id="waitlist-form">
-      <input type="email" id="user_email" placeholder="seu@email.com" required 
-             style="width:100%;padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:white;font-size:1rem;margin-bottom:15px">
-      <button type="submit" style="width:100%;padding:16px;background:linear-gradient(45deg,#f472b6,#a855f7);color:white;border:none;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;box-shadow:0 10px 30px rgba(244,114,182,0.4)">
-        ✨ Entrar na lista
-      </button>
+      <input type="email" id="user_email" placeholder="seu@email.com" required>
+      <button type="submit">✨ Entrar na lista</button>
     </form>
     
-    <p style="margin-top:30px;font-size:0.9rem;opacity:0.7">Receberá email quando lançarmos!</p>
+    <div id="loading" class="loading">Enviando... ✨</div>
+    <div id="success-message" class="success">
+      ✅ Você tá na lista! Receberá email quando lançarmos! 💕
+    </div>
+    
+    <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
+      Seu email fica seguro conosco 📧
+    </p>
   </div>
 
   <!-- EmailJS -->
-  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script type="text/javascript">
-    (function() {
-      emailjs.init("gSbeiRffpN_7dXQcF");
-    })();
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    // SEUS IDs JÁ CONFIGURADOS:
+    const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
+    const SERVICE_ID = "service_nvq4syc"; 
+    const TEMPLATE_ID = "service_nvq4syc";
+    const TO_EMAIL = "dropsolo123@gmail.com"; // ← COLE SEU EMAIL!
     
-    document.getElementById('waitlist-form').addEventListener('submit', function(event) {
-      event.preventDefault();
+    emailjs.init(PUBLIC_KEY);
+    
+    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+      e.preventDefault();
       
       const email = document.getElementById('user_email').value;
+      const btn = e.target.querySelector('button');
+      const form = e.target;
+      const loading = document.getElementById('loading');
+      const success = document.getElementById('success-message');
       
-      emailjs.send('service_nvq4syc', 'service_nvq4syc', {
-        to_email: 'dropsolo123@gmail.com',  // ← TEU EMAIL AQUI
-        user_email: email
+      // Loading
+      btn.innerHTML = 'Enviando...';
+      btn.disabled = true;
+      loading.style.display = 'block';
+      form.style.display = 'none';
+      
+      emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        to_email: TO_EMAIL,
+        user_email: email,
+        message: `Novo na waitlist: ${email}`
       }).then(function() {
-        alert('✅ Email enviado! Você tá na lista! 💕');
-        document.getElementById('waitlist-form').reset();
+        loading.style.display = 'none';
+        success.style.display = 'block';
       }, function(error) {
-        alert('❌ Erro! Tenta de novo.');
+        alert('❌ Erro! Tenta novamente.');
+        btn.innerHTML = '✨ Entrar na lista';
+        btn.disabled = false;
+        form.style.display = 'flex';
+        loading.style.display = 'none';
       });
     });
   </script>
