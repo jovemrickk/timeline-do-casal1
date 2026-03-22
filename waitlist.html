@@ -9,75 +9,138 @@
     body { 
       min-height: 100vh; 
       background: linear-gradient(135deg, #741a36 0%, #1e0f2a 50%, #b83280 100%);
-      font-family: -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       color: white;
+      overflow-x: hidden;
       padding: 20px;
     }
-    .container { max-width: 500px; margin: 0 auto; padding-top: 100px; text-align: center; }
-    h1 { font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 20px; background: linear-gradient(45deg, #f472b6, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    form { display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto; }
-    input { padding: 18px; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; }
+    .container { 
+      max-width: 500px; 
+      margin: 0 auto; 
+      padding-top: 100px; 
+      text-align: center;
+    }
+    h1 { 
+      font-size: clamp(2rem, 6vw, 3rem); 
+      margin-bottom: 20px;
+      background: linear-gradient(45deg, #f472b6, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p { 
+      font-size: 1.25rem; 
+      opacity: 0.9; 
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    form { display: flex; flex-direction: column; gap: 15px; }
+    input { 
+      padding: 18px 20px; 
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      width: 100%;
+    }
     input::placeholder { color: rgba(255,255,255,0.6); }
-    button { padding: 18px; background: linear-gradient(45deg, #f472b6, #a855f7); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-    #debug { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-top: 20px; font-size: 0.9rem; text-align: left; max-width: 400px; margin: 20px auto 0; }
+    input:focus { outline: none; border-color: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
+    button { 
+      padding: 18px; 
+      background: linear-gradient(45deg, #f472b6, #a855f7);
+      color: white; 
+      border: none; 
+      border-radius: 16px;
+      font-size: 1.1rem; 
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 15px 35px rgba(244,114,182,0.4);
+      transition: all 0.3s ease;
+    }
+    button:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 20px 45px rgba(244,114,182,0.6);
+    }
+    button:disabled { 
+      opacity: 0.7; 
+      cursor: not-allowed; 
+      transform: none;
+    }
+    .success { 
+      background: rgba(255,255,255,0.1); 
+      padding: 25px; 
+      border-radius: 16px; 
+      border: 1px solid rgba(255,255,255,0.2);
+      margin-top: 20px;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+    .loading { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔧 DEBUG MODE 💕</h1>
-    <p>Testando EmailJS...</p>
+    <h1>Junte-se à waitlist 💕</h1>
+    <p>Primeiros 100 casais: <strong>acesso grátis pro 1º ano!</strong></p>
     
     <form id="waitlist-form">
       <input type="email" id="user_email" placeholder="seu@email.com" required>
-      <button type="submit">TESTAR ENVIO</button>
+      <button type="submit">✨ Entrar na lista</button>
     </form>
     
-    <div id="debug">
-      <strong>Console Debug:</strong><br>
-      <span id="log"></span>
+    <div id="loading" class="loading">Enviando... ✨</div>
+    <div id="success-message" class="success">
+      ✅ Você tá na lista! Receberá email quando lançarmos! 💕
     </div>
+    
+    <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
+      Seu email fica seguro conosco 📧
+    </p>
   </div>
 
+  <!-- EmailJS -->
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    console.log('🔥 EmailJS DEBUG START');
-    
-    // Teus IDs
+    // ✅ SEUS IDs CORRETOS:
     const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
-    const SERVICE_ID = "service_nvq4syc";
+    const SERVICE_ID = "service_nvq4syc"; 
     const TEMPLATE_ID = "template_uevai6w";
-    
-    console.log('Service ID:', SERVICE_ID);
-    console.log('Template ID:', TEMPLATE_ID);
-    console.log('Public Key:', PUBLIC_KEY);
+    const TO_EMAIL = "rickdrop31@gmail.com"; // ← COLE SEU EMAIL AQUI!
     
     emailjs.init(PUBLIC_KEY);
-    console.log('EmailJS inicializado');
     
     document.getElementById('waitlist-form').addEventListener('submit', function(e) {
       e.preventDefault();
       
       const email = document.getElementById('user_email').value;
-      const log = document.getElementById('log');
+      const btn = e.target.querySelector('button');
+      const form = e.target;
+      const loading = document.getElementById('loading');
+      const success = document.getElementById('success-message');
       
-      log.innerHTML = '1. Form capturado<br>2. Email: ' + email + '<br>3. Tentando enviar...';
+      // Loading
+      btn.innerHTML = 'Enviando...';
+      btn.disabled = true;
+      loading.style.display = 'block';
+      form.style.display = 'none';
       
       emailjs.send(SERVICE_ID, TEMPLATE_ID, {
-        to_email: 'dropsolo123@gmail.com', // ← TROCA AQUI
-        user_email: email
-      }).then(function(response) {
-        console.log('SUCCESS!', response);
-        log.innerHTML += '<br>✅ ENVIOU! Status: ' + response.status;
-        alert('✅ FUNCIONOU!');
+        to_email: TO_EMAIL,
+        user_email: email,
+        message: `Novo na waitlist do Timeline do Casal: ${email}`
+      }).then(function() {
+        loading.style.display = 'none';
+        success.style.display = 'block';
       }, function(error) {
-        console.error('ERRO COMPLETO:', error);
-        log.innerHTML += '<br>❌ ERRO: ' + error.text;
-        alert('ERRO: ' + error.text);
+        console.error('EmailJS Error:', error);
+        alert('❌ Erro! Tenta novamente.');
+        btn.innerHTML = '✨ Entrar na lista';
+        btn.disabled = false;
+        form.style.display = 'flex';
+        loading.style.display = 'none';
       });
     });
-    
-    // Teste inicial
-    console.log('Teste pronto. Abra F12 > Console pra ver logs');
   </script>
 </body>
 </html>
