@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeline do Casal — Sua história de amor, para sempre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --pink: #ff6b9d; --rose: #ff4b7e; --peach: #ffb7c5;
+  --lilac: #c084fc; --sky: #7dd3fc; --gold: #ffd700;
+  --glass: rgba(255,255,255,0.07); --glass-border: rgba(255,255,255,0.15);
+  --text: #fff; --muted: rgba(255,255,255,0.5);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
+body {
+  background: #060410;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  max-width: 100%;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position: fixed; width: 12px; height: 12px;
+  background: var(--pink); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transition: transform 0.15s ease, background 0.2s;
+  mix-blend-mode: screen;
+  transform: translate(-50%,-50%);
+}
+#cursor-trail {
+  position: fixed; width: 36px; height: 36px;
+  border: 1px solid rgba(255,107,157,0.4); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transition: all 0.12s ease;
+  transform: translate(-50%,-50%);
+}
+body:has(a:hover) #cursor, body:has(button:hover) #cursor { transform: translate(-50%,-50%) scale(3); }
+body:has(a:hover) #cursor-trail, body:has(button:hover) #cursor-trail { opacity: 0; }
+
+/* ── THREE.JS CANVAS ── */
+#bg-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.025; z-index: 1; pointer-events: none;
+}
+
+/* ── LAYOUT ── */
+section { position: relative; z-index: 2; }
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+/* ── GLASS ── */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.glass-strong {
+  background: rgba(255,255,255,0.09);
+  backdrop-filter: blur(40px) saturate(220%);
+  -webkit-backdrop-filter: blur(40px) saturate(220%);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.1);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+  z-index: 100; width: calc(100% - 40px); max-width: 1100px;
+  border-radius: 20px; padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  animation: slideDown 0.9s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes slideDown { from{opacity:0;transform:translateX(-50%) translateY(-20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600;
+  background: linear-gradient(135deg, #fff 30%, var(--peach));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+.nav-links a:hover { color: #fff; }
+
+/* ── MAGNETIC BUTTON ── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--pink) 0%, var(--lilac) 100%);
+  color: #fff; border: none; border-radius: 50px;
+  padding: 13px 28px; font-size: 14px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif; cursor: none;
+  text-decoration: none; transition: box-shadow 0.3s, filter 0.2s;
+  box-shadow: 0 4px 24px rgba(255,107,157,0.4);
+  position: relative; overflow: hidden; will-change: transform;
+}
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.2), transparent 60%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:hover { box-shadow: 0 8px 40px rgba(255,107,157,0.6); filter: brightness(1.1); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.07); color: #fff;
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 50px;
+  padding: 13px 28px; font-size: 14px; cursor: none;
+  text-decoration: none; transition: all 0.25s;
+  font-family: 'DM Sans', sans-serif;
+  backdrop-filter: blur(10px);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.28); }
+
+/* ── HERO ── */
+#hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 0 80px; text-align: center; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border-radius: 50px; padding: 8px 18px;
+  font-size: 11px; font-weight: 500; color: var(--peach);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px;
+  animation: fadeUp 0.9s 0.2s both;
+}
+.bdot { width: 6px; height: 6px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 8px var(--pink); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(54px, 9.5vw, 116px);
+  font-weight: 300; line-height: 0.93; letter-spacing: -2px;
+  margin-bottom: 12px; animation: fadeUp 0.9s 0.35s both;
+}
+.hero-title em {
+  font-style: italic;
+  background: linear-gradient(135deg, #ffb7c5 0%, #ff6b9d 40%, #c084fc 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub { font-size: clamp(15px, 1.8vw, 19px); color: var(--muted); font-weight: 300; max-width: 500px; margin: 22px auto 42px; line-height: 1.65; animation: fadeUp 0.9s 0.5s both; }
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.9s 0.65s both; }
+.hero-note { margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.28); animation: fadeUp 0.9s 0.8s both; }
+
+/* ── 3D PHONE CARDS ── */
+.hero-visual { margin-top: 72px; position: relative; display: flex; justify-content: center; animation: fadeUp 1s 1s both; }
+.phones-wrap { position: relative; width: 340px; height: 430px; }
+
+.phone-card {
+  position: absolute; border-radius: 28px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
+  transform-style: preserve-3d; will-change: transform;
+  transition: box-shadow 0.4s;
+}
+.phone-card:hover { box-shadow: 0 40px 100px rgba(255,107,157,0.3), 0 0 0 1px rgba(255,107,157,0.15); }
+.phone-main { left:50%; top:0; transform:translateX(-50%); width:220px; z-index:3; animation: floatA 6s ease-in-out infinite; }
+.phone-side-l { left:0; top:60px; transform:rotate(-8deg); width:190px; z-index:2; opacity:.72; animation: floatB 7s ease-in-out infinite; }
+.phone-side-r { right:0; top:60px; transform:rotate(8deg); width:190px; z-index:2; opacity:.72; animation: floatC 7s ease-in-out infinite; }
+@keyframes floatA { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-14px)} }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes floatB { 0%,100%{transform:rotate(-8deg) translateY(0)} 50%{transform:rotate(-8deg) translateY(-9px)} }
+@keyframes floatC { 0%,100%{transform:rotate(8deg) translateY(0)} 50%{transform:rotate(8deg) translateY(-9px)} }
+
+.pscreen {
+  background: linear-gradient(160deg, #18092a 0%, #0c1528 100%);
+  padding: 18px 14px; min-height: 360px; position: relative; overflow: hidden;
+}
+.pscreen::before { content:''; position:absolute; top:-40px;right:-40px; width:160px;height:160px; background:radial-gradient(circle, rgba(255,107,157,.3) 0%, transparent 70%); border-radius:50%; }
+.ps-bar { display:flex; justify-content:space-between; font-size:9px; color:rgba(255,255,255,.4); margin-bottom:14px; }
+.ps-head { font-family:'Cormorant Garamond',serif; font-size:17px; color:#fff; margin-bottom:14px; }
+.ps-head span { color:var(--pink); }
+.pcard { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:11px; margin-bottom:9px; backdrop-filter:blur(8px); }
+.pthumb { width:100%; height:72px; border-radius:9px; background:linear-gradient(135deg,rgba(255,107,157,.25),rgba(192,132,252,.2)); margin-bottom:7px; display:flex;align-items:center;justify-content:center; font-size:22px; }
+.pcap { font-size:10px; color:rgba(255,255,255,.75); line-height:1.4; }
+.pdate { font-size:9px; color:rgba(255,255,255,.32); margin-top:3px; }
+.ptag { display:inline-flex;align-items:center;gap:3px; background:rgba(255,107,157,.13);border:1px solid rgba(255,107,157,.22);border-radius:20px;padding:3px 7px;font-size:9px;color:var(--peach);margin-top:5px; }
+.pinput { background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:9px 10px;font-size:10px;color:rgba(255,255,255,.42);display:flex;align-items:center;gap:5px;margin-top:7px; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── STATS ── */
+#stats { padding:50px 0; border-top:1px solid rgba(255,255,255,.05); border-bottom:1px solid rgba(255,255,255,.05); }
+.stats-row { display:flex; justify-content:center; gap:80px; flex-wrap:wrap; }
+.stat { text-align:center; }
+.stat-n {
+  font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:600; line-height:1;
+  background:linear-gradient(135deg,#fff,var(--peach)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.stat-l { font-size:13px; color:var(--muted); margin-top:5px; }
+
+/* ── SECTION UTILS ── */
+.eyebrow { font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--pink);font-weight:500;margin-bottom:14px; }
+.s-title { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,5vw,62px); font-weight:300; line-height:1.08; letter-spacing:-1px; margin-bottom:14px; }
+.s-title em { font-style:italic; color:var(--peach); }
+.s-desc { font-size:16px; color:var(--muted); max-width:460px; line-height:1.65; }
+
+/* ── HOW ── */
+#how { padding:120px 0; }
+.how-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.how-steps { display:flex; flex-direction:column; gap:0; margin-top:40px; }
+.how-step { display:flex; gap:18px; padding:22px 0; border-bottom:1px solid rgba(255,255,255,.05); cursor:default; }
+.how-step:last-child { border-bottom:none; }
+.snum { font-family:'Cormorant Garamond',serif; font-size:13px; color:var(--pink); min-width:26px; padding-top:3px; }
+.sicon { width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.18); transition:transform 0.3s; }
+.how-step:hover .sicon { transform:scale(1.12) rotate(-5deg); }
+.st-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:500; margin-bottom:4px; }
+.st-desc { font-size:14px; color:var(--muted); line-height:1.55; transition:color .3s; }
+.how-step:hover .st-desc { color:rgba(255,255,255,.75); }
+
+/* ── EXPORT CARD ── */
+.exp-card { border-radius:28px; padding:28px; width:280px; animation:floatY 7s ease-in-out infinite; }
+.ec-h { font-family:'Cormorant Garamond',serif; font-size:20px; margin-bottom:4px; }
+.ec-s { font-size:12px; color:var(--muted); margin-bottom:18px; }
+.ec-list { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+.ec-row { display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.04); border-radius:12px; padding:10px; border:1px solid rgba(255,255,255,.06); transition:background .3s, transform .3s; }
+.ec-row:hover { background:rgba(255,107,157,.08); transform:translateX(4px); }
+.ec-ico { width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,rgba(255,107,157,.25),rgba(192,132,252,.2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0; }
+.ec-it { font-size:11px; font-weight:500; margin-bottom:2px; }
+.ec-id { font-size:10px; color:var(--muted); }
+.ec-bar-wrap { background:rgba(255,255,255,.06); border-radius:8px; height:4px; overflow:hidden; }
+.ec-bar { height:100%; width:72%; background:linear-gradient(90deg,var(--pink),var(--lilac)); border-radius:8px; animation:loadBar 3s ease-in-out infinite; }
+@keyframes loadBar { 0%,100%{width:72%} 50%{width:88%} }
+.ec-st { font-size:11px; color:var(--muted); margin-top:8px; }
+.ec-st strong { color:var(--peach); }
+
+/* ── FEATURES (tilt 3D cards) ── */
+#features { padding:120px 0; }
+.features-head { text-align:center; margin-bottom:60px; }
+.feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.feat-card {
+  border-radius:26px; padding:28px; position:relative; overflow:hidden;
+  cursor:none; transform-style:preserve-3d; will-change:transform;
+  transition:box-shadow 0.4s;
+}
+.feat-card:hover { box-shadow:0 24px 70px rgba(255,107,157,0.22) !important; }
+.feat-card.wide { grid-column:span 2; }
+.feat-card .feat-glow {
+  position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,107,157,0.18), transparent 60%);
+  opacity:0; transition:opacity .4s; border-radius:26px;
+}
+.feat-card:hover .feat-glow { opacity:1; }
+.feat-card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,transparent 50%);
+  border-radius:26px; pointer-events:none;
+}
+.feat-3d-obj { position:absolute; right:-10px; top:-10px; font-size:64px; opacity:.12; transform:translateZ(20px); transition:transform .4s, opacity .4s; }
+.feat-card:hover .feat-3d-obj { opacity:.22; transform:translateZ(30px) scale(1.1) rotate(10deg); }
+.fi { font-size:28px; margin-bottom:14px; position:relative; z-index:1; }
+.ft { font-family:'Syne',sans-serif; font-size:17px; font-weight:600; margin-bottom:8px; position:relative; z-index:1; }
+.fd { font-size:14px; color:var(--muted); line-height:1.6; position:relative; z-index:1; }
+.fb { display:inline-flex;align-items:center;gap:5px; background:rgba(255,107,157,.14); border:1px solid rgba(255,107,157,.22); color:var(--peach); border-radius:20px; padding:4px 10px; font-size:11px; margin-top:11px; font-weight:500; position:relative;z-index:1; }
+
+/* ── VIDEO MOCKUP ── */
+#export { padding:120px 0; }
+.exp-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.vid-mock {
+  border-radius:26px; overflow:hidden; aspect-ratio:9/16; max-height:420px; max-width:240px;
+  margin:0 auto; animation:floatY 8s ease-in-out infinite;
+  box-shadow:0 40px 100px rgba(0,0,0,.55);
+  cursor:none; transform-style:preserve-3d; will-change:transform;
+}
+.vm-inner {
+  width:100%; height:100%;
+  background:linear-gradient(160deg,#1a0a1e 0%,#0e1525 50%,#180a1e 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px; position:relative; overflow:hidden;
+}
+.vm-inner::before { content:'';position:absolute;top:-50px;left:-50px;right:-50px;height:200px; background:radial-gradient(ellipse,rgba(255,107,157,.22) 0%,transparent 70%); }
+.vm-year { font-family:'Cormorant Garamond',serif; font-size:56px; font-weight:300; opacity:.13; position:absolute; top:18px; right:14px; line-height:1; }
+.vm-couple { font-family:'Cormorant Garamond',serif; font-size:22px; font-style:italic; color:#fff; margin-bottom:4px; z-index:1; }
+.vm-d { font-size:11px; color:rgba(255,255,255,.38); z-index:1; margin-bottom:26px; }
+.vm-clips { display:flex;flex-direction:column;gap:8px;width:100%;z-index:1; }
+.vm-clip { height:52px; border-radius:10px; background:linear-gradient(135deg,rgba(255,107,157,.18),rgba(192,132,252,.13)); border:1px solid rgba(255,255,255,.07); display:flex;align-items:center;padding:0 12px;gap:10px;font-size:10px;color:rgba(255,255,255,.7); transition:transform .3s, background .3s; }
+.vm-clip:hover { transform:scale(1.02); background:linear-gradient(135deg,rgba(255,107,157,.28),rgba(192,132,252,.2)); }
+.vm-ct { width:32px;height:32px;border-radius:6px;background:rgba(255,107,157,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0; }
+.vm-play { width:52px;height:52px;border-radius:50%; background:linear-gradient(135deg,var(--pink),var(--lilac)); display:flex;align-items:center;justify-content:center;font-size:20px; margin-top:20px;z-index:1; box-shadow:0 8px 24px rgba(255,107,157,.4); animation:playPulse 2s ease-in-out infinite; cursor:none; transition:transform .2s; }
+.vm-play:hover { transform:scale(1.1); }
+@keyframes playPulse { 0%,100%{box-shadow:0 8px 24px rgba(255,107,157,.4)} 50%{box-shadow:0 8px 48px rgba(255,107,157,.75)} }
+.etags { display:flex;flex-wrap:wrap;gap:8px;margin-top:22px; }
+.etag { border-radius:50px;padding:7px 15px;font-size:13px;border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.65);background:rgba(255,255,255,.04); transition:all .25s; }
+.etag:hover { background:rgba(255,107,157,.1);border-color:rgba(255,107,157,.25);color:var(--peach); }
+
+/* ── TESTIMONIALS (3D tilt) ── */
+#testi { padding:120px 0; }
+.testi-head { text-align:center; margin-bottom:60px; }
+.testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.testi-card {
+  border-radius:24px; padding:28px; cursor:none;
+  transform-style:preserve-3d; will-change:transform;
+  transition:box-shadow .4s; position:relative; overflow:hidden;
+}
+.testi-card:hover { box-shadow:0 20px 60px rgba(255,107,157,.18); }
+.testi-card .tg { position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,107,157,0.12), transparent 55%); opacity:0; transition:opacity .4s; border-radius:24px; }
+.testi-card:hover .tg { opacity:1; }
+.tstars { color:#ffb700; font-size:14px; margin-bottom:14px; letter-spacing:2px; }
+.ttext { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:300; line-height:1.65; color:rgba(255,255,255,.82); font-style:italic; margin-bottom:18px; }
+.tauth { display:flex;align-items:center;gap:11px; }
+.tavatar { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(255,107,157,.3),rgba(192,132,252,.25));display:flex;align-items:center;justify-content:center;font-size:16px; }
+.tname { font-size:13px;font-weight:500; }
+.thandle { font-size:12px;color:var(--muted); }
+
+/* ── PRICING ── */
+#pricing { padding:120px 0; text-align:center; }
+.p-grid { display:grid; grid-template-columns:1fr 1fr; max-width:720px; margin:60px auto 0; gap:24px; }
+.pcard { border-radius:28px; padding:36px 30px; text-align:left; position:relative; overflow:hidden; transform-style:preserve-3d; cursor:none; will-change:transform; transition:box-shadow .4s; }
+.pcard:hover { box-shadow:0 24px 70px rgba(0,0,0,.4); }
+.pcard .pg { position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,107,157,.12),transparent 60%);opacity:0;transition:opacity .4s;border-radius:28px; }
+.pcard:hover .pg { opacity:1; }
+.pcard.hot { background:linear-gradient(135deg,rgba(255,107,157,.11),rgba(192,132,252,.07)); border:1px solid rgba(255,107,157,.22); }
+.pcard.hot::before { content:'';position:absolute;top:-60px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,157,.14),transparent 70%);border-radius:50%; }
+.plabel { font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:7px; }
+.pbadge { position:absolute;top:18px;right:18px;background:linear-gradient(135deg,var(--pink),var(--lilac));color:#fff;font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase; }
+.pamount { font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:600;line-height:1;margin-bottom:4px; }
+.pamount sup { font-size:20px;font-weight:300;vertical-align:super;opacity:.7; }
+.pper { font-size:13px;color:var(--muted);margin-bottom:22px; }
+.pfeats { list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:26px; }
+.pfeats li { display:flex;align-items:flex-start;gap:9px;font-size:14px;color:rgba(255,255,255,.8); }
+.chk { color:var(--pink);font-size:15px;flex-shrink:0;margin-top:1px; }
+
+/* ── FINAL CTA ── */
+#cta { padding:140px 0; text-align:center; position:relative; }
+#cta::before { content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(255,107,157,.1) 0%,transparent 70%);pointer-events:none; }
+.cta-title { font-family:'Cormorant Garamond',serif;font-size:clamp(44px,7.5vw,90px);font-weight:300;line-height:.95;letter-spacing:-2px;margin-bottom:20px; }
+.cta-title em { font-style:italic;color:var(--peach); }
+.cta-sub { font-size:16px;color:var(--muted);max-width:380px;margin:0 auto 40px;line-height:1.6; }
+.cta-row { display:flex;gap:14px;justify-content:center;flex-wrap:wrap; }
+
+/* floating hearts */
+.hf { position:absolute;pointer-events:none;font-size:20px;animation:hFloat 6s ease-in-out infinite;opacity:0; }
+.hf:nth-child(1){left:18%;top:28%;animation-delay:0s}
+.hf:nth-child(2){left:78%;top:22%;animation-delay:2.5s;font-size:13px}
+.hf:nth-child(3){left:52%;top:72%;animation-delay:4.5s;font-size:11px}
+@keyframes hFloat{0%{opacity:0;transform:translateY(0)}20%{opacity:.6}80%{opacity:.25}100%{opacity:0;transform:translateY(-65px)}}
+
+/* ── FOOTER ── */
+footer { border-top:1px solid rgba(255,255,255,.05);padding:40px 0;text-align:center;font-size:13px;color:rgba(255,255,255,.28); }
+footer strong { color:rgba(255,255,255,.55);font-family:'Cormorant Garamond',serif;font-weight:400;font-size:17px; }
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1); }
+.reveal.in { opacity:1;transform:none; }
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* ── 3D FLOATING OBJECT CONTAINER ── */
+#obj-canvas { position:fixed;inset:0;z-index:0;pointer-events:none; }
+
+@media(max-width:768px) {
+  /* cursor off on touch */
+  #cursor, #cursor-trail { display: none; }
+  body { cursor: auto; }
+  a, button { cursor: pointer; }
+
+  /* nav */
+  nav { top:12px; padding:12px 18px; border-radius:16px; }
+  .nav-logo { font-size:18px; }
+  .nav-links { display:none; }
+  .btn-primary { padding:10px 16px; font-size:13px; }
+
+  /* hero */
+  #hero { padding:120px 0 60px; }
+  .hero-badge { font-size:10px; padding:7px 14px; }
+  .hero-title { font-size:clamp(42px,13vw,68px); letter-spacing:-1px; }
+  .hero-sub { font-size:15px; margin:16px auto 32px; padding:0 8px; }
+  .hero-cta { flex-direction:column; align-items:center; gap:10px; }
+  .hero-cta a { width:100%; max-width:300px; justify-content:center; }
+
+  /* phones mockup — 3 phones scaled to fit */
+  .hero-visual { overflow: visible; }
+  .phones-wrap { transform: scale(0.78); transform-origin: center top; width: 340px; height: 340px; margin: 0 auto; }
+  .phone-side-l, .phone-side-r { display: block; }
+  .phone-main { width: 220px; }
+  .pscreen { min-height: 300px; }
+
+  /* stats */
+  #stats { padding:36px 0; }
+  .stats-row { gap:28px; justify-content:space-around; }
+  .stat-n { font-size:38px; }
+  .stat-l { font-size:12px; }
+
+  /* sections */
+  #how, #features, #export, #testi, #pricing { padding:80px 0; }
+
+  /* how */
+  .how-grid { grid-template-columns:1fr; gap:40px; }
+  .how-grid > div:last-child { display:flex; justify-content:center; width:100%; padding:0; }
+  .exp-card { width:100%; max-width:100%; min-width:0; box-sizing:border-box; margin:0; }
+
+  /* features */
+  .feat-grid { grid-template-columns:1fr; gap:14px; }
+  .feat-card.wide { grid-column:span 1; }
+  .feat-3d-obj { font-size:48px; }
+
+  /* export */
+  .exp-grid { grid-template-columns:1fr; gap:40px; }
+  .exp-grid > div:first-child { order:2; }
+  .exp-grid > div:last-child { order:1; }
+  .vid-mock { max-height:360px; }
+  .etags { gap:6px; }
+  .etag { font-size:12px; padding:6px 12px; }
+  .exp-grid .btn-primary { width:100%; max-width:300px; justify-content:center; }
+
+  /* testimonials */
+  .testi-grid { grid-template-columns:1fr; gap:14px; }
+
+  /* pricing */
+  #pricing { text-align:center; }
+  .p-grid { grid-template-columns:1fr; max-width:340px; gap:14px; }
+
+  /* cta */
+  #cta { padding:100px 0; }
+  .cta-title { font-size:clamp(38px,11vw,64px); }
+  .cta-row { flex-direction:column; align-items:center; gap:10px; }
+  .cta-row a { width:100%; max-width:300px; justify-content:center; }
+
+  /* section titles */
+  .s-title { font-size:clamp(32px,8vw,48px); }
+  .s-desc { font-size:15px; }
+
+  /* container padding */
+  .container { padding:0 18px; }
+}
+
+@media(max-width:420px) {
+  .hero-title { font-size:clamp(36px,14vw,54px); }
+  nav { width:calc(100% - 24px); }
+  .stat-n { font-size:32px; }
+  .stats-row { gap:20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav class="glass">
+  <div class="nav-logo">Timeline do Casal</div>
+  <div class="nav-links">
+    <a href="#how">Como funciona</a>
+    <a href="#features">Recursos</a>
+    <a href="#pricing">Preços</a>
+  </div>
+  <a href="/waitlist" class="btn-primary">Criar Diário →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge glass"><span class="bdot"></span>Novo · Sua história em um lugar só</div>
+    <h1 class="hero-title">Cada momento<br><em>para sempre.</em></h1>
+    <p class="hero-sub">O app que guarda os dias do seu casal — fotos, textos e sentimentos — e transforma tudo em vídeos inesquecíveis a cada data especial.</p>
+    <div class="hero-cta">
+      <a href="/waitlist" class="btn-primary" style="padding:16px 36px;font-size:16px">✦ Criar Diário</a>
+      <a href="#how" class="btn-ghost" style="padding:16px 28px;font-size:16px">Ver como funciona</a>
+    </div>
+    <p class="hero-note">Sem cartão de crédito · Grátis para sempre no plano básico</p>
+
+    <div class="hero-visual">
+      <div class="phones-wrap">
+        <div class="phone-card phone-side-l glass">
+          <div class="pscreen">
+            <div class="ps-bar"><span>9:41</span><span>●●●</span></div>
+            <div class="pcard"><div class="pthumb">🌅</div><div class="pcap">Nascer do sol na praia</div><div class="pdate">Jan 12</div></div>
+          </div>
+        </div>
+        <div class="phone-card phone-main glass-strong">
+          <div class="pscreen">
+            <div class="ps-bar"><span>9:41</span><span>●●●</span></div>
+            <div class="ps-head">Hoje, <span>meu amor</span> 💕</div>
+            <div class="pcard">
+              <div class="pthumb">☕</div>
+              <div class="pcap">"Fomos no nosso cantinho favorito, aquele café que a gente ama..."</div>
+              <div class="pdate">Hoje · Há 2 horas</div>
+              <div class="ptag">📍 Café Favorito</div>
+            </div>
+            <div class="pinput">✦ &nbsp; O que rolou hoje?</div>
+          </div>
+        </div>
+        <div class="phone-card phone-side-r glass">
+          <div class="pscreen">
+            <div class="ps-bar"><span>9:41</span><span>●●●</span></div>
+            <div class="pcard"><div class="pthumb">🎪</div><div class="pcap">Parque de diversões!</div><div class="pdate">Mar 8</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat reveal"><div class="stat-n" data-target="47000">0</div><div class="stat-l">Casais usando</div></div>
+      <div class="stat reveal d1"><div class="stat-n" data-target="3200000">0</div><div class="stat-l">Memórias guardadas</div></div>
+      <div class="stat reveal d2"><div class="stat-n" data-target="120000">0</div><div class="stat-l">Vídeos exportados</div></div>
+      <div class="stat reveal d3"><div class="stat-n">4.9★</div><div class="stat-l">Avaliação média</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="container">
+    <div class="how-grid">
+      <div>
+        <p class="eyebrow reveal">Como funciona</p>
+        <h2 class="s-title reveal">Simples como<br><em>lembrar de você.</em></h2>
+        <p class="s-desc reveal">Registrar o dia a dia nunca foi tão fácil. Em segundos, seu amor fica guardado para sempre.</p>
+        <div class="how-steps">
+          <div class="how-step reveal"><span class="snum">01</span><div class="sicon">📸</div><div><div class="st-title">Abra e registre o momento</div><div class="st-desc">Uma foto, vídeo curto ou só um texto do que rolou hoje entre vocês.</div></div></div>
+          <div class="how-step reveal d1"><span class="snum">02</span><div class="sicon">💾</div><div><div class="st-title">Guardado para sempre</div><div class="st-desc">Cada memória vai pra linha do tempo. Cronológica, bonita e segura na nuvem.</div></div></div>
+          <div class="how-step reveal d2"><span class="snum">03</span><div class="sicon">🎬</div><div><div class="st-title">Exporte a história em vídeo</div><div class="st-desc">A cada data especial, gere um vídeo de 2min com fotos, textos animados e música.</div></div></div>
+          <div class="how-step reveal d3"><span class="snum">04</span><div class="sicon">✨</div><div><div class="st-title">Liquid Glass + música romântica</div><div class="st-desc">A estética mais bonita do momento. Automático, sem edição, sem esforço.</div></div></div>
+        </div>
+      </div>
+      <div class="reveal" style="display:flex;justify-content:center">
+        <div class="exp-card glass-strong">
+          <div class="ec-h">Exportar nossa história ✦</div>
+          <div class="ec-s">2 anos · 847 momentos</div>
+          <div class="ec-list">
+            <div class="ec-row"><div class="ec-ico">🌺</div><div><div class="ec-it">Primeiro encontro</div><div class="ec-id">15 Fev 2024 · São Paulo</div></div></div>
+            <div class="ec-row"><div class="ec-ico">🏖️</div><div><div class="ec-it">Férias em Floripa</div><div class="ec-id">Jul 2024 · 24 fotos</div></div></div>
+            <div class="ec-row"><div class="ec-ico">💍</div><div><div class="ec-it">O pedido ♡</div><div class="ec-id">Dez 2024 · Momento especial</div></div></div>
+            <div class="ec-row"><div class="ec-ico">🏠</div><div><div class="ec-it">Primeiro apartamento</div><div class="ec-id">Mar 2025 · Nova fase</div></div></div>
+          </div>
+          <div class="ec-bar-wrap"><div class="ec-bar"></div></div>
+          <div class="ec-st">Gerando vídeo… <strong>72% completo</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="features-head">
+      <p class="eyebrow reveal">Recursos</p>
+      <h2 class="s-title reveal">Tudo que o amor<br><em>merece ter.</em></h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card glass wide reveal" style="background:linear-gradient(135deg,rgba(255,107,157,.1),rgba(192,132,252,.06));border:1px solid rgba(255,107,157,.18)">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">🎬</div>
+        <div class="fi">🎬</div>
+        <div class="ft">Vídeos automáticos com IA</div>
+        <div class="fd">Em datas especiais — aniversário, 6 meses, 1 ano — o app gera automaticamente um vídeo com toda a história de vocês: fotos cronológicas, textos animados, transições Liquid Glass e música personalizada.</div>
+        <div class="fb">✦ Exclusivo · Premium</div>
+      </div>
+      <div class="feat-card glass reveal d1">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">📅</div>
+        <div class="fi">📅</div>
+        <div class="ft">Linha do tempo do casal</div>
+        <div class="fd">Todos os momentos organizados cronologicamente. Belíssimo e sempre acessível.</div>
+      </div>
+      <div class="feat-card glass reveal d1">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">🔒</div>
+        <div class="fi">🔒</div>
+        <div class="ft">Privado & seguro</div>
+        <div class="fd">Só vocês dois têm acesso. Criptografia de ponta a ponta. Seus momentos são de vocês.</div>
+      </div>
+      <div class="feat-card glass reveal d2">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">📱</div>
+        <div class="fi">📱</div>
+        <div class="ft">Compartilhe no Instagram</div>
+        <div class="fd">Exporte direto pro Reels ou Stories. Formato otimizado automaticamente.</div>
+      </div>
+      <div class="feat-card glass reveal d2">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">🎵</div>
+        <div class="fi">🎵</div>
+        <div class="ft">Música personalizada</div>
+        <div class="fd">Escolha a música de vocês dois. O vídeo sincroniza automaticamente.</div>
+      </div>
+      <div class="feat-card glass reveal d3">
+        <div class="feat-glow"></div>
+        <div class="feat-3d-obj">⏰</div>
+        <div class="fi">⏰</div>
+        <div class="ft">Lembretes de datas</div>
+        <div class="fd">Nunca mais esqueça o aniversário. O app avisa e já prepara a surpresa.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPORT / VIDEO -->
+<section id="export">
+  <div class="container">
+    <div class="exp-grid">
+      <div class="reveal" style="display:flex;justify-content:center">
+        <div class="vid-mock glass-strong" id="vidMock">
+          <div class="vm-inner">
+            <div class="vm-year">2026</div>
+            <div class="vm-couple">Ana & Pedro</div>
+            <div class="vm-d">15 de Fevereiro · 1 ano juntos</div>
+            <div class="vm-clips">
+              <div class="vm-clip"><div class="vm-ct">🌺</div><span>Primeiro encontro</span></div>
+              <div class="vm-clip"><div class="vm-ct">🏖️</div><span>Viagem pra praia</span></div>
+              <div class="vm-clip"><div class="vm-ct">💍</div><span>O pedido ♡</span></div>
+            </div>
+            <div class="vm-play">▶</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow reveal">Exportação</p>
+        <h2 class="s-title reveal">O vídeo mais<br><em>emocionante</em><br>que já viram.</h2>
+        <p class="s-desc reveal">Com um toque, a IA transforma todos os momentos num vídeo cinematográfico de 2 minutos. Pronto pro WhatsApp ou Instagram.</p>
+        <div class="etags reveal">
+          <div class="etag">✦ Liquid Glass</div><div class="etag">🎵 Música romântica</div>
+          <div class="etag">📱 Formato Reels</div><div class="etag">✨ Textos animados</div>
+          <div class="etag">🎬 Transições suaves</div><div class="etag">🏆 4K quality</div>
+        </div>
+        <a href="#pricing" class="btn-primary reveal" style="margin-top:32px;display:inline-flex">Criar meu primeiro vídeo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testi">
+  <div class="container">
+    <div class="testi-head">
+      <p class="eyebrow reveal">Depoimentos</p>
+      <h2 class="s-title reveal">O que os casais<br><em>estão dizendo.</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card glass reveal">
+        <div class="tg"></div>
+        <div class="tstars">★★★★★</div>
+        <div class="ttext">"Meu namorado chorou quando viu o vídeo do nosso primeiro ano. Nunca esperava algo tão lindo saindo automaticamente."</div>
+        <div class="tauth"><div class="tavatar">😊</div><div><div class="tname">Camila R.</div><div class="thandle">São Paulo, SP</div></div></div>
+      </div>
+      <div class="testi-card glass reveal d1">
+        <div class="tg"></div>
+        <div class="tstars">★★★★★</div>
+        <div class="ttext">"Uso todo dia. É o meu diário do casal. Quando quero lembrar de um momento, está tudo ali — fotos, textos, tudo."</div>
+        <div class="tauth"><div class="tavatar">🧔</div><div><div class="tname">Rafael M.</div><div class="thandle">Belo Horizonte, MG</div></div></div>
+      </div>
+      <div class="testi-card glass reveal d2">
+        <div class="tg"></div>
+        <div class="tstars">★★★★★</div>
+        <div class="ttext">"As transições Liquid Glass são de outro mundo. Postei no Instagram e todo mundo perguntou como fiz. Recomendo!"</div>
+        <div class="tauth"><div class="tavatar">💁‍♀️</div><div><div class="tname">Juliana F.</div><div class="thandle">Curitiba, PR</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <p class="eyebrow reveal">Planos</p>
+    <h2 class="s-title reveal">Simples e <em>justo.</em></h2>
+    <p class="s-desc reveal" style="margin:12px auto 0;text-align:center">Começa grátis. Upgrade quando quiser.</p>
+    <div class="p-grid">
+      <div class="pcard glass reveal">
+        <div class="pg"></div>
+        <div class="plabel">Grátis</div>
+        <div class="pamount"><sup>R$</sup>0</div>
+        <div class="pper">para sempre</div>
+        <ul class="pfeats">
+          <li><span class="chk">✓</span>Até 60 memórias / mês</li>
+          <li><span class="chk">✓</span>Linha do tempo do casal</li>
+          <li><span class="chk">✓</span>Fotos e textos</li>
+          <li><span class="chk">✓</span>1 vídeo exportado / ano</li>
+          <li><span class="chk">✓</span>Lembretes de datas</li>
+        </ul>
+        <a href="#" class="btn-ghost" style="width:100%;justify-content:center">Começar grátis</a>
+      </div>
+      <div class="pcard hot reveal d1">
+        <div class="pg"></div>
+        <span class="pbadge">✦ Popular</span>
+        <div class="plabel">Eterno</div>
+        <div class="pamount" style="background:linear-gradient(135deg,#fff,var(--peach));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text"><sup style="-webkit-text-fill-color:rgba(255,255,255,.6)">R$</sup>19</div>
+        <div class="pper">por mês · cancela quando quiser</div>
+        <ul class="pfeats">
+          <li><span class="chk">✓</span>Memórias ilimitadas</li>
+          <li><span class="chk">✓</span>Vídeos ilimitados com IA</li>
+          <li><span class="chk">✓</span>Transições Liquid Glass</li>
+          <li><span class="chk">✓</span>Músicas personalizadas</li>
+          <li><span class="chk">✓</span>Qualidade 4K</li>
+          <li><span class="chk">✓</span>Exportar pro Instagram / WhatsApp</li>
+          <li><span class="chk">✓</span>Suporte prioritário</li>
+        </ul>
+        <a href="#" class="btn-primary" style="width:100%;justify-content:center">Assinar agora →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="cta">
+  <div class="hf">💕</div><div class="hf">✦</div><div class="hf">💗</div>
+  <div class="container" style="position:relative;z-index:2">
+    <p class="eyebrow reveal">Comece hoje</p>
+    <h2 class="cta-title reveal">Não perca mais<br><em>nenhum momento.</em></h2>
+    <p class="cta-sub reveal">Cada dia sem registrar é uma memória perdida. Comece agora, é grátis.</p>
+    <div class="cta-row reveal">
+      <a href="/waitlist" class="btn-primary" style="padding:16px 36px;font-size:16px">✦ Criar Diário</a>
+      <a href="#how" class="btn-ghost" style="padding:16px 28px;font-size:16px">Saber mais</a>
+    </div>
+    <p style="margin-top:18px;font-size:11px;color:rgba(255,255,255,.25)">Já são 47.000+ casais guardando suas histórias</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <strong>Timeline do Casal</strong>
+    <p style="margin-top:11px">© 2026 Timeline do Casal · Feito com amor no Brasil 🇧🇷 · <a href="#" style="color:rgba(255,255,255,.28);text-decoration:none">Privacidade</a> · <a href="#" style="color:rgba(255,255,255,.28);text-decoration:none">Termos</a></p>
+  </div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════
+   THREE.JS — BACKGROUND SCENE
+   Floating hearts, orbs, rings, particles
+════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 20;
+
+  // Lights
+  const ambLight = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(ambLight);
+  const pLight1 = new THREE.PointLight(0xff6b9d, 3, 40);
+  pLight1.position.set(-8, 8, 5);
+  scene.add(pLight1);
+  const pLight2 = new THREE.PointLight(0xc084fc, 2.5, 40);
+  pLight2.position.set(8, -6, 5);
+  scene.add(pLight2);
+  const pLight3 = new THREE.PointLight(0x7dd3fc, 2, 30);
+  pLight3.position.set(0, 0, 8);
+  scene.add(pLight3);
+
+  // Materials
+  const matPink = new THREE.MeshPhysicalMaterial({ color: 0xff6b9d, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.7, transmission: 0.5 });
+  const matLilac = new THREE.MeshPhysicalMaterial({ color: 0xc084fc, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.65, transmission: 0.5 });
+  const matSky = new THREE.MeshPhysicalMaterial({ color: 0x7dd3fc, roughness: 0.1, metalness: 0.05, transparent: true, opacity: 0.55 });
+  const matGold = new THREE.MeshPhysicalMaterial({ color: 0xffb7c5, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.6 });
+  const matWhite = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.1, metalness: 0.0, transparent: true, opacity: 0.08 });
+
+  const objects = [];
+
+  // ── Torus rings ──
+  for (let i = 0; i < 5; i++) {
+    const geo = new THREE.TorusGeometry(1.5 + Math.random() * 2, 0.04 + Math.random() * 0.08, 16, 100);
+    const mat = [matPink, matLilac, matSky, matGold, matWhite][i % 5].clone();
+    mat.opacity = 0.15 + Math.random() * 0.25;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 28, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 12);
+    mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    mesh.userData = { speed: 0.002 + Math.random() * 0.006, rx: (Math.random() - 0.5) * 0.008, ry: (Math.random() - 0.5) * 0.008, floatSpeed: 0.3 + Math.random() * 0.5, floatAmp: 0.8 + Math.random() * 1.2, originY: mesh.position.y };
+    objects.push(mesh);
+    scene.add(mesh);
+  }
+
+  // ── Icosahedra (gem-like) ──
+  for (let i = 0; i < 6; i++) {
+    const s = 0.3 + Math.random() * 0.7;
+    const geo = new THREE.IcosahedronGeometry(s, 0);
+    const mat = [matPink, matLilac, matSky, matGold][i % 4].clone();
+    mat.wireframe = Math.random() > 0.5;
+    mat.opacity = mat.wireframe ? 0.25 : 0.45;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 32, (Math.random() - 0.5) * 22, (Math.random() - 0.5) * 10 - 2);
+    mesh.userData = { rx: (Math.random() - 0.5) * 0.012, ry: (Math.random() - 0.5) * 0.012, floatSpeed: 0.2 + Math.random() * 0.4, floatAmp: 0.6 + Math.random() * 1.0, originY: mesh.position.y };
+    objects.push(mesh);
+    scene.add(mesh);
+  }
+
+  // ── Octahedra ──
+  for (let i = 0; i < 4; i++) {
+    const s = 0.4 + Math.random() * 0.6;
+    const geo = new THREE.OctahedronGeometry(s);
+    const mat = [matLilac, matPink][i % 2].clone();
+    mat.opacity = 0.3 + Math.random() * 0.3;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 8 - 4);
+    mesh.userData = { rx: (Math.random() - 0.5) * 0.015, ry: (Math.random() - 0.5) * 0.015, floatSpeed: 0.25 + Math.random() * 0.35, floatAmp: 0.5 + Math.random() * 0.9, originY: mesh.position.y };
+    objects.push(mesh);
+    scene.add(mesh);
+  }
+
+  // ── Spheres (liquid glass orbs) ──
+  for (let i = 0; i < 5; i++) {
+    const s = 0.5 + Math.random() * 1.2;
+    const geo = new THREE.SphereGeometry(s, 32, 32);
+    const mat = new THREE.MeshPhysicalMaterial({ color: [0xff6b9d, 0xc084fc, 0x7dd3fc, 0xffb7c5, 0xff9a56][i], roughness: 0.0, metalness: 0.0, transparent: true, opacity: 0.12 + Math.random() * 0.12 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 6 - 5);
+    mesh.userData = { rx: 0, ry: (Math.random() - 0.5) * 0.003, floatSpeed: 0.15 + Math.random() * 0.2, floatAmp: 1 + Math.random() * 1.5, originY: mesh.position.y };
+    objects.push(mesh);
+    scene.add(mesh);
+  }
+
+  // ── Particle system ──
+  const pCount = 220;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(pCount * 3);
+  const pColors = new Float32Array(pCount * 3);
+  const palette = [[1,.42,.62],[.75,.52,.99],[.49,.83,.99],[1,.72,.77],[1,.8,.56]];
+  for (let i = 0; i < pCount; i++) {
+    pPos[i*3]   = (Math.random() - 0.5) * 50;
+    pPos[i*3+1] = (Math.random() - 0.5) * 40;
+    pPos[i*3+2] = (Math.random() - 0.5) * 20 - 5;
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    pColors[i*3] = c[0]; pColors[i*3+1] = c[1]; pColors[i*3+2] = c[2];
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+  const pMat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.55, sizeAttenuation: true });
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  // Mouse parallax
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    my = -(e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    // Camera parallax
+    camera.position.x += (mx * 1.5 - camera.position.x) * 0.04;
+    camera.position.y += (my * 1.0 - camera.position.y) * 0.04;
+    camera.lookAt(scene.position);
+
+    objects.forEach((obj, i) => {
+      obj.rotation.x += obj.userData.rx || 0.002;
+      obj.rotation.y += obj.userData.ry || 0.003;
+      obj.position.y = obj.userData.originY + Math.sin(t * obj.userData.floatSpeed + i) * obj.userData.floatAmp;
+    });
+
+    // Particles drift
+    const pa = pGeo.attributes.position.array;
+    for (let i = 0; i < pCount; i++) {
+      pa[i*3+1] += 0.008;
+      if (pa[i*3+1] > 20) pa[i*3+1] = -20;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    // Light animation
+    pLight1.position.x = Math.sin(t * 0.4) * 10;
+    pLight1.position.y = Math.cos(t * 0.3) * 8;
+    pLight2.position.x = Math.cos(t * 0.35) * 10;
+    pLight2.position.y = Math.sin(t * 0.45) * 6;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+/* ════════════════════════════════════════
+   CUSTOM CURSOR
+════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let tx = 0, ty = 0, cx = 0, cy = 0;
+document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cursor.style.left = tx + 'px'; cursor.style.top = ty + 'px'; });
+(function animCursor() {
+  cx += (tx - cx) * 0.14;
+  cy += (ty - cy) * 0.14;
+  trail.style.left = cx + 'px';
+  trail.style.top = cy + 'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a,button,.feat-card,.testi-card,.pcard').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; cursor.style.background = 'var(--lilac)'; trail.style.borderColor = 'rgba(192,132,252,.5)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursor.style.background = 'var(--pink)'; trail.style.borderColor = 'rgba(255,107,157,.4)'; });
+});
+
+/* ════════════════════════════════════════
+   3D TILT ON CARDS
+════════════════════════════════════════ */
+function addTilt(selector, intensity = 12) {
+  document.querySelectorAll(selector).forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      const rx = (y - 0.5) * -intensity;
+      const ry = (x - 0.5) * intensity;
+      card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(8px)`;
+      card.style.setProperty('--mx', `${x * 100}%`);
+      card.style.setProperty('--my', `${y * 100}%`);
+      // update glow
+      const glow = card.querySelector('.feat-glow,.tg,.pg');
+      if (glow) glow.style.setProperty('--mx', `${x * 100}%`), glow.style.setProperty('--my', `${y * 100}%`);
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateZ(0)';
+      card.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s';
+    });
+    card.addEventListener('mouseenter', () => { card.style.transition = 'none'; });
+  });
+}
+addTilt('.feat-card', 10);
+addTilt('.testi-card', 8);
+addTilt('.pcard', 9);
+addTilt('.phone-card', 14);
+
+// Video mockup tilt
+const vidMock = document.getElementById('vidMock');
+if (vidMock) {
+  vidMock.addEventListener('mousemove', e => {
+    const r = vidMock.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    vidMock.style.transform = `perspective(600px) rotateX(${(y-.5)*-14}deg) rotateY(${(x-.5)*14}deg) translateZ(12px)`;
+  });
+  vidMock.addEventListener('mouseleave', () => { vidMock.style.transform = ''; vidMock.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)'; });
+  vidMock.addEventListener('mouseenter', () => { vidMock.style.transition = 'none'; });
+}
+
+/* ════════════════════════════════════════
+   MAGNETIC BUTTONS
+════════════════════════════════════════ */
+document.querySelectorAll('.btn-primary,.btn-ghost').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width / 2;
+    const y = e.clientY - r.top - r.height / 2;
+    btn.style.transform = `translate(${x * 0.3}px, ${y * 0.4}px)`;
+    btn.style.setProperty('--mx', `${(e.clientX-r.left)/r.width*100}%`);
+    btn.style.setProperty('--my', `${(e.clientY-r.top)/r.height*100}%`);
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+    btn.style.transition = 'transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s, filter 0.2s';
+    setTimeout(() => { btn.style.transition = ''; }, 500);
+  });
+});
+
+/* ════════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════════ */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ════════════════════════════════════════
+   COUNT UP ANIMATION
+════════════════════════════════════════ */
+function formatNum(n, target) {
+  if (target >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (target >= 1000) return Math.round(n / 1000) + 'K+';
+  return Math.round(n).toString();
+}
+const cio = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.done) {
+      e.target.dataset.done = '1';
+      const target = parseInt(e.target.dataset.target);
+      if (!target) return;
+      let start = 0, dur = 1800, startTime = null;
+      const step = ts => {
+        if (!startTime) startTime = ts;
+        const prog = Math.min((ts - startTime) / dur, 1);
+        const ease = 1 - Math.pow(1 - prog, 3);
+        e.target.textContent = formatNum(ease * target, target);
+        if (prog < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-target]').forEach(el => cio.observe(el));
+
+/* ════════════════════════════════════════
+   NAV SCROLL EFFECT
+════════════════════════════════════════ */
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  nav.style.background = window.scrollY > 60 ? 'rgba(6,4,16,0.72)' : 'rgba(255,255,255,0.07)';
+}, { passive: true });
+</script>
+</body>
+</html>

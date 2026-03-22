@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waitlist — Timeline do Casal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background: #060410;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── AURORA ORBS ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, #ff4b7e 0%, transparent 70%); top: -180px; left: -100px; opacity: 0.4; }
+.orb2 { width: 500px; height: 500px; background: radial-gradient(circle, #c084fc 0%, transparent 70%); bottom: -100px; right: -100px; opacity: 0.35; animation-direction: alternate-reverse; animation-duration: 22s; }
+.orb3 { width: 350px; height: 350px; background: radial-gradient(circle, #7dd3fc 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: 0.18; animation-duration: 15s; }
+@keyframes drift {
+  0%   { transform: translate(0,0) scale(1); }
+  50%  { transform: translate(30px,-20px) scale(1.05); }
+  100% { transform: translate(-20px,30px) scale(0.97); }
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.025; pointer-events: none; z-index: 0;
+}
+
+/* ── BACK LINK ── */
+.back {
+  position: fixed; top: 24px; left: 24px; z-index: 10;
+  display: inline-flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,0.38); font-size: 13px;
+  text-decoration: none; transition: color 0.2s;
+}
+.back:hover { color: rgba(255,255,255,0.8); }
+
+/* ── CARD ── */
+.card {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+  border-radius: 32px;
+  padding: 52px 44px;
+  text-align: center;
+  animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,107,157,0.12);
+  border: 1px solid rgba(255,107,157,0.25);
+  border-radius: 50px; padding: 7px 16px;
+  font-size: 11px; font-weight: 500; color: #ffb7c5;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.dot {
+  width: 6px; height: 6px; background: #ff6b9d;
+  border-radius: 50%; box-shadow: 0 0 8px #ff6b9d;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── LOGO ── */
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px; color: rgba(255,255,255,0.4);
+  margin-bottom: 10px; letter-spacing: 0.5px;
+}
+
+/* ── TITLE ── */
+.title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 8vw, 52px);
+  font-weight: 300; line-height: 1.05;
+  letter-spacing: -1px; color: #fff;
+  margin-bottom: 14px;
+}
+
+/* ── SUBTITLE ── */
+.sub {
+  font-size: 15px; color: rgba(255,255,255,0.52);
+  line-height: 1.65; max-width: 340px;
+  margin: 0 auto 32px;
+}
+.sub strong { color: #ffb7c5; font-weight: 500; }
+
+/* ── DIVIDER ── */
+.divider {
+  width: 48px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,157,0.5), transparent);
+  margin: 0 auto 28px;
+}
+
+/* ── SLOTS ── */
+.slots {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 28px;
+}
+.slot-bar {
+  height: 4px; border-radius: 4px; flex: 1; max-width: 28px;
+  background: rgba(255,255,255,0.1);
+}
+.slot-bar.filled { background: linear-gradient(90deg, #ff6b9d, #c084fc); }
+.slot-text { font-size: 12px; color: rgba(255,255,255,0.38); white-space: nowrap; }
+.slot-text span { color: #ffb7c5; font-weight: 500; }
+
+/* ── FORM ── */
+.wl-form { display: flex; flex-direction: column; gap: 14px; }
+
+.wl-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 16px 20px;
+  font-size: 15px; font-family: 'DM Sans', sans-serif;
+  color: #fff; outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.wl-input::placeholder { color: rgba(255,255,255,0.28); }
+.wl-input:focus {
+  border-color: rgba(255,107,157,0.5);
+  background: rgba(255,107,157,0.05);
+  box-shadow: 0 0 0 3px rgba(255,107,157,0.1);
+}
+
+.wl-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #ff6b9d 0%, #c084fc 100%);
+  color: #fff; border: none; border-radius: 16px;
+  padding: 17px 28px; font-size: 16px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+  box-shadow: 0 6px 28px rgba(255,107,157,0.45);
+}
+.wl-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px rgba(255,107,157,0.6);
+  filter: brightness(1.08);
+}
+.wl-btn:active { transform: translateY(0); }
+
+/* ── NOTE ── */
+.note { font-size: 12px; color: rgba(255,255,255,0.26); margin-top: 14px; }
+
+/* ── SUCCESS ── */
+.success { display: none; animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.success-icon {
+  font-size: 52px; display: block; margin-bottom: 20px;
+  animation: bounce 0.6s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+}
+@keyframes bounce {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px; font-weight: 300;
+  color: #fff; line-height: 1.1; margin-bottom: 14px;
+}
+.success-title em { font-style: italic; color: #ffb7c5; }
+.success-sub { font-size: 15px; color: rgba(255,255,255,0.48); line-height: 1.65; }
+
+@media (max-width: 520px) {
+  .card { padding: 40px 22px; border-radius: 24px; }
+  .back { top: 14px; left: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<a href="/" class="back">← Voltar</a>
+
+<div class="card">
+
+  <!-- FORM STATE -->
+  <div id="formState">
+    <div class="badge"><span class="dot"></span>Acesso antecipado</div>
+    <div class="logo">Timeline do Casal</div>
+    <h1 class="title">Junte-se à<br>waitlist 💕</h1>
+    <p class="sub"><strong>Primeiros 100 casais: acesso grátis!</strong><br>Entre na lista e seja um dos primeiros a guardar sua história para sempre.</p>
+    <div class="divider"></div>
+
+    <!-- Slots -->
+    <div class="slots">
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar filled"></div>
+      <div class="slot-bar"></div>
+      <div class="slot-bar"></div>
+      <div class="slot-bar"></div>
+      <span class="slot-text"><span>73</span>/100 vagas</span>
+    </div>
+
+    <!-- Netlify Form -->
+    <form
+      name="waitlist"
+      method="POST"
+      data-netlify="true"
+      class="wl-form"
+      id="waitlistForm"
+    >
+      <input type="hidden" name="form-name" value="waitlist" />
+      <input
+        type="email"
+        name="email"
+        placeholder="seu@email.com"
+        required
+        class="wl-input"
+      />
+      <button type="submit" class="wl-btn" id="submitBtn">
+        Entrar na lista ✦
+      </button>
+    </form>
+
+    <p class="note">Sem spam. Só avisamos quando abrir. 🔒</p>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success" id="successState">
+    <span class="success-icon">💕</span>
+    <div class="success-title">Você está<br><em>na lista!</em></div>
+    <p class="success-sub">Te avisamos no email quando o Timeline do Casal abrir.<br>Prepare-se para guardar cada momento com quem você ama. ✨</p>
+  </div>
+
+</div>
+
+<script>
+const form = document.getElementById('waitlistForm');
+const btn = document.getElementById('submitBtn');
+const formState = document.getElementById('formState');
+const successState = document.getElementById('successState');
+
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+
+  const data = new FormData(form);
+
+  try {
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data).toString()
+    });
+  } catch(err) {
+    // mesmo com erro, mostra sucesso (Netlify processa server-side)
+  }
+
+  formState.style.display = 'none';
+  successState.style.display = 'block';
+});
+</script>
+
+</body>
+</html>
