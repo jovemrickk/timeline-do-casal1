@@ -81,6 +81,7 @@
       margin-top: 20px; 
       font-size: 0.9rem; 
       opacity: 0.8;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -99,33 +100,25 @@
       ✅ Você tá na lista! Receberá email quando lançarmos! 💕
     </div>
     
-    <div id="status"></div>
+    <div id="status">Aguardando...</div>
     
     <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
       Seu email fica seguro conosco 📧
     </p>
   </div>
 
-  <!-- ✅ EMAILJS v4 MODERNO + BACKUP -->
-  <script type="importmap">
-  {
-    "imports": {
-      "@emailjs/browser": "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
-    }
-  }
-  </script>
-
-  <script type="module">
-    import emailjs from '@emailjs/browser';
-    
-    // ✅ TEUS IDs
-    const SERVICE_ID = "service_nvq4syc";
+  <!-- ✅ EmailJS ANTIGO (FUNCIONA) + BACKUP INCRÍVEL -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    // SEUS IDs
+    const PUBLIC_KEY = "gSbeiRffpN_7dXQcF";
+    const SERVICE_ID = "service_nvq4syc"; 
     const TEMPLATE_ID = "template_uevai6w";
     const TO_EMAIL = "dropsolo123@gmail.com";
     
-    emailjs.init("gSbeiRffpN_7dXQcF");
+    emailjs.init(PUBLIC_KEY);
     
-    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
+    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
       e.preventDefault();
       
       const email = document.getElementById('user_email').value;
@@ -142,28 +135,26 @@
       form.style.display = 'none';
       status.innerHTML = 'Enviando via EmailJS...';
       
-      try {
-        // Tenta EmailJS primeiro
-        await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
-          to_email: TO_EMAIL,
-          user_email: email,
-          message: `Novo na waitlist: ${email}`
-        });
-        
+      // Tenta EmailJS
+      emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        to_email: TO_EMAIL,
+        user_email: email,
+        message: `Novo na waitlist: ${email}`
+      }).then(function(response) {
+        console.log('EmailJS OK!', response);
         status.innerHTML = '✅ EmailJS enviado!';
         loading.style.display = 'none';
         success.style.display = 'block';
+      }, function(error) {
+        console.log('EmailJS falhou, usando BACKUP');
         
-      } catch (error) {
-        console.error('EmailJS falhou, usando backup:', error);
-        
-        // BACKUP: Abre Gmail direto (SEMPRE funciona)
+        // BACKUP 1: Gmail direto (abre app email)
         window.location.href = `mailto:dropsolo123@gmail.com?subject=Waitlist Timeline&body=Novo email na waitlist: ${email}`;
         
         status.innerHTML = '✅ Backup Gmail enviado!';
         loading.style.display = 'none';
         success.style.display = 'block';
-      }
+      });
     });
   </script>
 </body>
