@@ -14,69 +14,19 @@
       overflow-x: hidden;
       padding: 20px;
     }
-    .container { 
-      max-width: 500px; 
-      margin: 0 auto; 
-      padding-top: 100px; 
-      text-align: center;
-    }
-    h1 { 
-      font-size: clamp(2rem, 6vw, 3rem); 
-      margin-bottom: 20px;
-      background: linear-gradient(45deg, #f472b6, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    p { 
-      font-size: 1.25rem; 
-      opacity: 0.9; 
-      margin-bottom: 40px;
-      line-height: 1.6;
-    }
+    .container { max-width: 500px; margin: 0 auto; padding-top: 100px; text-align: center; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 20px; background: linear-gradient(45deg, #f472b6, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 40px; line-height: 1.6; }
     form { display: flex; flex-direction: column; gap: 15px; }
-    input { 
-      padding: 18px 20px; 
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 1rem;
-      backdrop-filter: blur(10px);
-      width: 100%;
-    }
+    input { padding: 18px 20px; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; backdrop-filter: blur(10px); width: 100%; }
     input::placeholder { color: rgba(255,255,255,0.6); }
     input:focus { outline: none; border-color: #f472b6; box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
-    button { 
-      padding: 18px; 
-      background: linear-gradient(45deg, #f472b6, #a855f7);
-      color: white; 
-      border: none; 
-      border-radius: 16px;
-      font-size: 1.1rem; 
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 15px 35px rgba(244,114,182,0.4);
-      transition: all 0.3s ease;
-    }
-    button:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 20px 45px rgba(244,114,182,0.6);
-    }
-    button:disabled { 
-      opacity: 0.7; 
-      cursor: not-allowed; 
-      transform: none;
-    }
-    .success { 
-      background: rgba(255,255,255,0.1); 
-      padding: 25px; 
-      border-radius: 16px; 
-      border: 1px solid rgba(255,255,255,0.2);
-      margin-top: 20px;
-      display: none;
-      backdrop-filter: blur(10px);
-    }
+    button { padding: 18px; background: linear-gradient(45deg, #f472b6, #a855f7); color: white; border: none; border-radius: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 15px 35px rgba(244,114,182,0.4); transition: all 0.3s ease; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 20px 45px rgba(244,114,182,0.6); }
+    button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .success { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); margin-top: 20px; display: none; backdrop-filter: blur(10px); }
     .loading { display: none; }
+    .error { background: rgba(255,0,0,0.2); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,0,0,0.3); margin-top: 20px; display: none; }
   </style>
 </head>
 <body>
@@ -89,40 +39,57 @@
       <button type="submit">✨ Entrar na lista</button>
     </form>
     
-    <div id="loading" class="loading">Preparando seu email... ✨</div>
+    <div id="loading" class="loading">Salvando no banco... ✨</div>
     <div id="success-message" class="success">
-      ✅ Email aberto! Só clica ENVIAR e você tá na lista! 💕
+      ✅ Você tá na lista! Receberá email quando lançarmos! 💕
     </div>
-    
-    <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.7;">
-      Seu email fica seguro conosco 📧
-    </p>
+    <div id="error-message" class="error">
+      ❌ Email já está na lista ou erro. Tenta outro!
+    </div>
   </div>
 
-  <!-- ✅ SÓ MAILTO - 100% CONFIÁVEL -->
+  <!-- SUPABASE COM TEUS DADOS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+    const SUPABASE_URL = "https://atuiqulmmeipmzpqyxle.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0dWlxdWxtbWVpcG16cHF5eGxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDA5MjgsImV4cCI6MjA4OTc3NjkyOH0.xffhAd00OTG5QwdAYDIDb4h70gK1KVgeZ3F1e8Mq7bc";
+    
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const email = document.getElementById('user_email').value;
       const btn = e.target.querySelector('button');
-      const form = e.target;
       const loading = document.getElementById('loading');
       const success = document.getElementById('success-message');
+      const errorMsg = document.getElementById('error-message');
       
       // Loading
-      btn.innerHTML = 'Abrindo email...';
       btn.disabled = true;
+      btn.innerHTML = 'Salvando...';
       loading.style.display = 'block';
+      success.style.display = 'none';
+      errorMsg.style.display = 'none';
       
-      // Abre GMAIL com email PRONTO (só clica enviar!)
-      setTimeout(() => {
-        window.location.href = `mailto:dropsolo123@gmail.com?subject=🚨%20Waitlist%20Timeline%20do%20Casal&body=Novo%20na%20waitlist!%0A%0AEmail:%20${email}%0A%0A---%0ATimeline%20do%20Casal%20💕`;
+      try {
+        const { data, error } = await supabase
+          .from('waitlist')
+          .insert([{ email: email }]);
         
-        // Sucesso imediato
+        if (error) throw error;
+        
+        console.log('✅ SALVOU!', data);
         loading.style.display = 'none';
         success.style.display = 'block';
-      }, 1000);
+        
+      } catch (error) {
+        console.error('❌ ERRO:', error);
+        loading.style.display = 'none';
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '✨ Entrar na lista';
+      }
     });
   </script>
 </body>
